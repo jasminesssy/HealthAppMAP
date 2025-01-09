@@ -13,13 +13,17 @@ class DashboardActivity : AppCompatActivity() {
 
         val btnActivityTracker: Button = findViewById(R.id.btnActivityTracker)
         val btnSleepTracker: Button = findViewById(R.id.btnSleepTracker)
-
+        val btnDrinkReminder: Button = findViewById(R.id.btnDrinkReminder)
         btnActivityTracker.setOnClickListener {
             startActivity(Intent(this, ActivityTrackerActivity::class.java))
         }
 
         btnSleepTracker.setOnClickListener {
             startActivity(Intent(this, SleepTrackerActivity::class.java))
+        }
+
+        btnDrinkReminder.setOnClickListener {
+            startActivity(Intent(this, DrinkReminderActivity::class.java))
         }
     }
 }
