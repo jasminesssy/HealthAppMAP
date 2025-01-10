@@ -14,6 +14,7 @@ class SignInActivity : AppCompatActivity() {
 
         val btnLogin: Button = findViewById(R.id.btnSignInLogin)
         btnLogin.setOnClickListener {
+
             startActivity(Intent(this, DashboardActivity::class.java))
         }
     }
