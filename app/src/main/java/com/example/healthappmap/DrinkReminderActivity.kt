@@ -52,7 +52,7 @@ class DrinkReminderActivity : AppCompatActivity() {
                 tvDrinkCount.text = "Drink Count: $drinkCount"
                 btnDrink.text = "Done"
 
-                // Change text back to "Drink" after 2 seconds
+
                 btnDrink.postDelayed({
                     btnDrink.text = "Drink"
                 }, 2000)
@@ -100,7 +100,7 @@ class DrinkReminderActivity : AppCompatActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Schedule alarm every 2 hours
+
         val interval = 2 * 1000L // 2 hours in milliseconds
         val startTime = Calendar.getInstance().timeInMillis
         alarmManager.setRepeating(
@@ -112,7 +112,7 @@ class DrinkReminderActivity : AppCompatActivity() {
     }
 }
 
-// Create this as a separate file: DrinkReminderReceiver.kt
+
 class DrinkReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val notificationBuilder = NotificationCompat.Builder(context, "drink_reminder_channel")

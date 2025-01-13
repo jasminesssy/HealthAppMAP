@@ -43,6 +43,16 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etPassword" />
+    <TextView
+        android:id="@+id/textPageRegister"
+        android:layout_width="367dp"
+        android:layout_height="76dp"
+        android:layout_marginTop="28dp"
+        android:text="Daftar akun? Klik disini"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSignInLogin" />
 
     <TextView
         android:id="@+id/textView"
