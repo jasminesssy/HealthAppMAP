@@ -1,95 +1,128 @@
 package com.example.healthappmap
 
+import android.Manifest
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import java.util.Calendar
 
-class SignInActivity : AppCompatActivity() {
-    lateinit var btnLogin : Button
-    lateinit var etEmail : EditText
-    lateinit var etPassword : EditText
-    lateinit var txtRegister : TextView
+class DrinkReminderActivity : AppCompatActivity() {
+    private lateinit var btnDrink: Button
+    private lateinit var tvDrinkCount: TextView
+    private var drinkCount = 0
+    private val NOTIFICATION_PERMISSION_CODE = 123
+    private val CHANNEL_ID = "drink_reminder_channel"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sign_in)
+        setContentView(R.layout.activity_drink_reminder)
 
-        val sharedPreference =  getSharedPreferences(
-            "app_preference", Context.MODE_PRIVATE
-        )
+        setupViews()
+        createNotificationChannel()
+        checkNotificationPermission()
+        scheduleReminders()
+    }
 
-        var id = sharedPreference.getString("id", "").toString()
+    private fun setupViews() {
+        btnDrink = findViewById(R.id.btnDrinkDone)
+        tvDrinkCount = findViewById(R.id.tvDrinkCount)
 
-        if (!id.isNullOrBlank()) {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+        val btnBackToDashboard: Button = findViewById(R.id.btnBackToDashboard)
+        btnBackToDashboard.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
         }
 
-        btnLogin = findViewById(R.id.btnSignInLogin)
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        txtRegister = findViewById(R.id.textPageRegister)
+        btnDrink.setOnClickListener {
+            if (btnDrink.text == "Drink") {
+                drinkCount++
+                tvDrinkCount.text = "Drink Count: $drinkCount"
+                btnDrink.text = "Done"
 
-        txtRegister.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
 
-        btnLogin.setOnClickListener {
-            this.auth(etEmail.text.toString(), etPassword.text.toString()) { isValid ->
-                if (!isValid) {
-                    Toast.makeText(
-                        applicationContext,
-                        "Username atau password salah!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@auth
-                }
-
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                btnDrink.postDelayed({
+                    btnDrink.text = "Drink"
+                }, 2000)
             }
+        }
 
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_CODE
+                )
+            }
         }
     }
-    private fun auth(email: String, password: String, checkResult: (isValid: Boolean) -> Unit) {
-        val db = Firebase.firestore
-        db.collection("user").whereEqualTo("email", email)
-            .get()
-            .addOnSuccessListener { documents ->
-                var isValid = false
 
-                for (document in documents) {
-                    var pass = document.data.get("password").toString()
-
-                    if (!pass.equals(PasswordHelper.md5(password).toString() )) {
-                        break
-                    }
-
-                    val sharedPreference =  getSharedPreferences(
-                        "app_preference", Context.MODE_PRIVATE
-                    )
-
-                    var editor = sharedPreference.edit()
-                    editor.putString("id", document.id.toString())
-                    editor.putString("name", document.data.get("name").toString())
-                    editor.putString("email", document.data.get("email").toString())
-                    editor.commit()
-
-                    isValid = true
-                }
-
-                checkResult.invoke(isValid)
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Drink Reminder"
+            val descriptionText = "Channel for drink reminder notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
             }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
 
+    private fun scheduleReminders() {
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, DrinkReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+
+        val interval = 2 * 1000L // 2 hours in milliseconds
+        val startTime = Calendar.getInstance().timeInMillis
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            startTime,
+            interval,
+            pendingIntent
+        )
+    }
+}
+
+
+class DrinkReminderReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val notificationBuilder = NotificationCompat.Builder(context, "drink_reminder_channel")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("Drink Reminder")
+            .setContentText("Time to drink water!")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, notificationBuilder.build())
     }
 }

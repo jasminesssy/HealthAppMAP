@@ -50,11 +50,11 @@
         android:id="@+id/btnSleepTracker"
         android:layout_width="331dp"
         android:layout_height="81dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/black"
         android:text="Sleep Tracker"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.583"
+        app:layout_constraintHorizontal_bias="0.458"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnActivityTracker" />
 
@@ -62,12 +62,46 @@
         android:id="@+id/btnDrinkReminder"
         android:layout_width="331dp"
         android:layout_height="81dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/black"
         android:text="Drink Reminder"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.458"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSleepTracker" />
+
+    <Button
+        android:id="@+id/btnUpdateProfile"
+        android:layout_width="96dp"
+        android:layout_height="56dp"
+        android:text="Update Profile"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="636dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnDrinkReminder" />
+
+    <Button
+        android:id="@+id/btnDeleteProfile"
+        android:layout_width="107dp"
+        android:layout_height="54dp"
+        android:text="Delete Profile"
+        tools:layout_editor_absoluteX="262dp"
+        tools:layout_editor_absoluteY="634dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnUpdateProfile" />
+
+    <Button
+        android:id="@+id/btnHistory"
+        android:layout_width="142dp"
+        android:layout_height="40dp"
+        android:text="History"
+        tools:layout_editor_absoluteX="117dp"
+        tools:layout_editor_absoluteY="656dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnDeleteProfile"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

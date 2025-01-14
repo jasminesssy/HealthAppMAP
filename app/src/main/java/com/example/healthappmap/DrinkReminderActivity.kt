@@ -1,5 +1,3 @@
-package com.example.healthappmap
-
 import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -18,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.healthappmap.DashboardActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
 class DrinkReminderActivity : AppCompatActivity() {
@@ -26,11 +26,13 @@ class DrinkReminderActivity : AppCompatActivity() {
     private var drinkCount = 0
     private val NOTIFICATION_PERMISSION_CODE = 123
     private val CHANNEL_ID = "drink_reminder_channel"
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_drink_reminder)
 
+        firestore = FirebaseFirestore.getInstance() // Inisialisasi Firestore
         setupViews()
         createNotificationChannel()
         checkNotificationPermission()
@@ -53,12 +55,25 @@ class DrinkReminderActivity : AppCompatActivity() {
                 btnDrink.text = "Done"
 
 
+                val drinkData = hashMapOf(
+                    "timestamp" to System.currentTimeMillis(),
+                    "drinkCount" to drinkCount
+                )
+
+                firestore.collection("drink_reminders")
+                    .add(drinkData)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Data saved to Firestore!", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Error saving data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+
                 btnDrink.postDelayed({
                     btnDrink.text = "Drink"
                 }, 2000)
             }
         }
-
     }
 
     private fun checkNotificationPermission() {
@@ -100,7 +115,6 @@ class DrinkReminderActivity : AppCompatActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-
         val interval = 2 * 1000L // 2 hours in milliseconds
         val startTime = Calendar.getInstance().timeInMillis
         alarmManager.setRepeating(
@@ -111,7 +125,6 @@ class DrinkReminderActivity : AppCompatActivity() {
         )
     }
 }
-
 
 class DrinkReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

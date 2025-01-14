@@ -51,6 +51,12 @@
             android:exported="true">
 
         </activity>
+
+        <activity
+            android:name=".UpdateUserActivity"
+            android:exported="true">
+
+        </activity>
     </application>
 
 </manifest>
